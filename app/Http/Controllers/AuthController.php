@@ -36,24 +36,27 @@ class AuthController extends Controller
         ],201);
     }
 
-    public function login(Request $request){
+    public function login(Request $request)
+    {
         $loginUserData = $request->validate([
-            'email'=>'required|string|email',
-            'password'=>'required|min:8'
+            'email' => 'required|string|email',
+            'password' => 'required|min:8',
         ]);
-        $user = User::where('email',$loginUserData['email'])->first();
-        if(!$user || !Hash::check($loginUserData['password'],$user->password)){
-            return response()->json([
-                'message' => 'Invalid Credentials'
-            ],401);
+
+        $user = User::where('email', $loginUserData['email'])->first();
+
+        if (!$user || !Hash::check($loginUserData['password'], $user->password)) {
+            return redirect()->route('login')->with('error', 'Invalid Credentials');
         }
-        $token = $user->createToken($user->name.'-AuthToken')->plainTextToken;
-        // return response()->json([
-        //     'message' => 'Login Successful',
-        //     'access_token' => $token,
-        // ]);
-        return redirect()->route('register')->with('access_token', $token);
+
+        $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
+
+        return redirect()->route('login')->with([
+            'success' => 'Welcome, ' . $user->name . '!',
+            'access_token' => $token,
+        ]);
     }
+
 
     public function logout(){
         auth()->user()->currentAccessToken()->delete();
