@@ -1,16 +1,19 @@
 <?php
+
 namespace App\Http\Controllers;
+
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use \App\Mail\VerifyEmail;
+
 class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $registerUserData = $request->validate([
+        $userData = $request->validate([
             'name' => 'required|string|max:255|min:3',
             'phone' => 'required|numeric|digits_between:10,15',
             'email' => 'required|email|unique:users,email',
@@ -18,10 +21,10 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'name' => $registerUserData['name'],
-            'phone' => $registerUserData['phone'],
-            'email' => $registerUserData['email'],
-            'password' => Hash::make($registerUserData['password']),
+            'name' => $userData['name'],
+            'phone' => $userData['phone'],
+            'email' => $userData['email'],
+            'password' => Hash::make($userData['password']),
         ]);
 
         Mail::to($user->email)->send(new VerifyEmail($user));
@@ -29,17 +32,16 @@ class AuthController extends Controller
         return redirect()->route('login')->with('success', 'User added successfully!');
     }
 
-
     public function login(Request $request)
     {
-        $loginUserData = $request->validate([
+        $loginData = $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|min:8',
         ]);
 
-        $user = User::where('email', $loginUserData['email'])->first();
+        $user = User::where('email', $loginData['email'])->first();
 
-        if (!$user || !Hash::check($loginUserData['password'], $user->password)) {
+        if (!$user || !Hash::check($loginData['password'], $user->password)) {
             return redirect()->route('login')->with('error', 'Invalid Credentials');
         }
 
@@ -51,11 +53,11 @@ class AuthController extends Controller
         ]);
     }
 
-
-    public function logout(){
-        auth()->user()->currentAccessToken()->delete();
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
         return response()->json([
-          "message"=>"logged out"
+            "message" => "Logged out successfully"
         ]);
     }
 }
