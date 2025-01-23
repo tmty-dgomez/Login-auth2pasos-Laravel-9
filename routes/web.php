@@ -14,11 +14,15 @@ use App\Http\Controllers\AuthController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 Route::get('/bienvenida/{userId}', [WelcomeController::class, 'bienvenida'])
     ->name('bienvenida.index');
+
+Route::get('/', function () {
+        return view('login'); 
+})->name('login');
 
  Route::get('/login', function () {
         return view('login'); 
@@ -28,3 +32,4 @@ Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::get('/register', function () {
     return view('register');
 })->name('register');
+Route::post('/register', [AuthController::class, 'register'])->name('register.post');

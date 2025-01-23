@@ -8,19 +8,17 @@ use Illuminate\Support\Facades\Mail;
 use \App\Mail\VerifyEmail;
 class AuthController extends Controller
 {
-    public function register(Request $request){
+    public function register(Request $request)
+    {
         $registerUserData = $request->validate([
             'name' => 'required|string|max:255|min:3',
-            'lastname01' => 'required|string|max:255|min:3',
-            'lastname02' => 'nullable|string|max:255|min:3',
             'phone' => 'required|numeric|digits_between:10,15',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:5',
         ]);
+
         $user = User::create([
             'name' => $registerUserData['name'],
-            'lastname01' => $registerUserData['lastname01'],
-            'lastname02' => $registerUserData['lastname02'],
             'phone' => $registerUserData['phone'],
             'email' => $registerUserData['email'],
             'password' => Hash::make($registerUserData['password']),
@@ -28,13 +26,9 @@ class AuthController extends Controller
 
         Mail::to($user->email)->send(new VerifyEmail($user));
 
-        return response()->json(['msg' => "Registro correcto", 'data' => $user]);
-
-        return response()->json([
-            'message' => 'User Created ',
-            'data' => $user
-        ],201);
+        return redirect()->route('login')->with('success', 'User added successfully!');
     }
+
 
     public function login(Request $request)
     {

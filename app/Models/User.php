@@ -23,8 +23,6 @@ class User extends SanctumPersonalAccessToken
     protected $fillable = [
         'name',
         'email',
-        'lastname01',
-        'lastname02',
         'phone',
         'password',
     ];
