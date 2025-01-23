@@ -48,10 +48,11 @@ class AuthController extends Controller
             ],401);
         }
         $token = $user->createToken($user->name.'-AuthToken')->plainTextToken;
-        return response()->json([
-            'message' => 'Login Successful',
-            'access_token' => $token,
-        ]);
+        // return response()->json([
+        //     'message' => 'Login Successful',
+        //     'access_token' => $token,
+        // ]);
+        return redirect()->route('register')->with('access_token', $token);
     }
 
     public function logout(){

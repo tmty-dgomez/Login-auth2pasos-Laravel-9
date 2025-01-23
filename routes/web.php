@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\WelcomeController;
+use App\Http\Controllers\AuthController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -22,6 +23,7 @@ Route::get('/bienvenida/{userId}', [WelcomeController::class, 'bienvenida'])
  Route::get('/login', function () {
         return view('login'); 
 })->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.post'); 
 
 Route::get('/register', function () {
     return view('register');
