@@ -2,11 +2,10 @@
 namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Http\Request;
-use Exception; 
+use Illuminate\Support\Facades\Mail;
+use \App\Mail\VerifyEmail;
 class AuthController extends Controller
 {
     public function register(Request $request){
@@ -26,6 +25,11 @@ class AuthController extends Controller
             'email' => $registerUserData['email'],
             'password' => Hash::make($registerUserData['password']),
         ]);
+
+        Mail::to($user->email)->send(new VerifyEmail($user));
+
+        return response()->json(['msg' => "Registro correcto", 'data' => $user]);
+
         return response()->json([
             'message' => 'User Created ',
             'data' => $user
