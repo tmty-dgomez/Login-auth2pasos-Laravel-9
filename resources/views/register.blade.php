@@ -45,39 +45,40 @@
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
     integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz" crossorigin="anonymous"></script>
-
 @if (session('success'))
-<script>
-    Swal.fire({
-        title: "Welcome!",
-        text: "{{ session('success') }}",
-        icon: "success",
-        draggable: true,
-        timer: 3000,
-        showConfirmButton: false
-    });
-</script>
+    <script>
+        Swal.fire({
+            title: "¡Bienvenido!",
+            text: "{{ session('success') }}",
+            icon: "success",
+            draggable: true,
+            timer: 3000,
+            showConfirmButton: false
+        });
+    </script>
 @endif
 
 @if (session('error'))
-<script>
-    Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "{{ session('error') }}",
-    });
-</script>
+    <script>
+        Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "{{ session('error') }}",
+        });
+    </script>
 @endif
 
 @if ($errors->any())
-<script>
-    Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "{{ implode(', ', $errors->all()) }}", 
-    });
-</script>
+    <script>
+        var errorMessages = "{{ implode(', ', $errors->all()) }}";
+        Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: errorMessages,
+        });
+    </script>
 @endif
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="/js/main.js"></script>
 </body>

@@ -16,8 +16,8 @@
         <form class="login-form" method="POST" action="{{ route('login.post') }}">
             @csrf
             <h2><i class="fas fa-lock"></i> Login</h2>
-            <input type="text" name="email" placeholder="Email" value="{{ old('email') }}" required />
-            <input type="password" name="password" placeholder="Password" required />
+            <input type="text" name="email" placeholder="Email" value="{{ old('email') }}"  />
+            <input type="password" name="password" placeholder="Password"  />
             <button type="submit">Login</button>
             <p class="message">Not registered? <a href="{{ url('/register') }}">Create an account</a></p>
         </form>
@@ -25,37 +25,38 @@
 </div>
 
 @if (session('success'))
-<script>
-    Swal.fire({
-        title: "Welcome!",
-        text: "{{ session('success') }}",
-        icon: "success",
-        draggable: true,
-        timer: 3000,
-        showConfirmButton: false
-    });
-</script>
+    <script>
+        Swal.fire({
+            title: "Welcome!",
+            text: "{{ session('success') }}",
+            icon: "success",
+            draggable: true,
+            timer: 3000,
+            showConfirmButton: false
+        });
+    </script>
 @endif
 
-@if (session('error'))
-<script>
-    Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "{{ session('error') }}",
-    });
-</script>
+@if(session('error_code') == \App\Constants\ErrorCodes::E1001)
+    <script>
+        Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "The provided credentials are incorrect.",
+        });
+    </script>
 @endif
 
 @if ($errors->any())
-<script>
-    Swal.fire({
-        icon: "error",
-        title: "Oops...",
-        text: "{{ implode(', ', $errors->all()) }}", 
-    });
-</script>
+    <script>
+        Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "{{ implode(', ', $errors->all()) }}", 
+        });
+    </script>
 @endif
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="/js/main.js"></script>
 </body>
