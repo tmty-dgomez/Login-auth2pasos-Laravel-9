@@ -19,10 +19,13 @@ use App\Http\Controllers\AuthController;
 //     return $request->user();
 // });
 
-Route::get('/Users', [UserController::class, 'GetUsers']);
-Route::post('/AddUsers', [UserController::class, 'AddUser']);
-Route::get('/User/{id}', [UserController::class, 'GetUser']);
-Route::put('/UpdateUsers/{id}', [UserController::class, 'UpdateUser']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/Users', [UserController::class, 'getUsers']);
+    Route::post('/AddUsers', [UserController::class, 'addUser']);
+    Route::get('/User/{id}', [UserController::class, 'getUser'])->where('id', '[0-9]+'); 
+    Route::put('/UpdateUsers/{id}', [UserController::class, 'updateUser'])->where('id', '[0-9]+');
+});
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);

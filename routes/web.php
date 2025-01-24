@@ -21,15 +21,21 @@ Route::get('/bienvenida/{userId}', [WelcomeController::class, 'bienvenida'])
     ->name('bienvenida.index');
 
 Route::get('/', function () {
-        return view('login'); 
+        return view('login');
 })->name('login');
 
- Route::get('/login', function () {
-        return view('login'); 
-})->name('login');
-Route::post('/login', [AuthController::class, 'login'])->name('login.post'); 
+Route::get('/login', function () {
+    return view('login');
+})->middleware('guest')->name('login'); 
+
+Route::post('/login', [AuthController::class, 'login'])
+    ->middleware('guest', 'throttle:5,1') 
+    ->name('login.post');
 
 Route::get('/register', function () {
     return view('register');
-})->name('register');
-Route::post('/register', [AuthController::class, 'register'])->name('register.post');
+})->middleware('guest')->name('register');
+
+Route::post('/register', [AuthController::class, 'register'])
+    ->middleware('guest', 'throttle:5,1')
+    ->name('register.post');
