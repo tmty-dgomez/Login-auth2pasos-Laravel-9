@@ -14,9 +14,10 @@ use App\Http\Controllers\AuthController;
 |
 */
 
- Route::get('/welcome', function () {
-     return view('welcome');
- })->name('welcome');
+ Route::get('/dashboard', function () {
+     return view('dashboard');
+ })->name('dashboard');
+ 
 Route::get('/bienvenida/{userId}', [WelcomeController::class, 'bienvenida'])
     ->name('bienvenida.index');
 

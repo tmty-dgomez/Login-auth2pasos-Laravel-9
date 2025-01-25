@@ -143,7 +143,7 @@ class AuthController extends Controller
      
          $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
      
-         return redirect()->route('welcome')->with([
+         return redirect()->route('dashboard')->with([
              'success' => 'Verification successful! You are now logged in.',
              'access_token' => $token,
          ]);

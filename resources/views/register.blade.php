@@ -21,20 +21,38 @@
             @csrf
             <div class="form-group">
               <label class="form-control-label">Name</label>
-              <input type="text" name="name" class="form-control" >
+              <input type="text" name="name" class="form-control" placeholder="Enter your name">
             </div>
             <div class="form-group">
               <label class="form-control-label">Email</label>
-              <input type="text" name="email" class="form-control" >
+              <input type="text" name="email" class="form-control" placeholder="Enter your email">
             </div>
             <div class="form-group">
               <label class="form-control-label">Phone number</label>
-              <input type="text" name="phone" class="form-control" >
+              <input type="text" name="phone" class="form-control" placeholder="Enter your phone number">
             </div>
             <div class="form-group">
-              <label class="form-control-label">Password</label>
-              <input type="password" name="password" class="form-control">
+            <label class="form-control-label">Password</label>
+            <div class="input-group">
+              <input id="password" type="password" name="password" class="form-control" placeholder="Enter your password">
+              <button type="button" id="toggle-password" class="btn btn-outline-secondary">
+                <i id="password-icon" class="fas fa-eye"></i>
+              </button>
             </div>
+            <small id="password-hint" class="password-hint text-muted">
+              Your password should include:
+              <ul>
+                <li>At least 8 characters</li>
+                <li>One uppercase letter</li>
+                <li>One lowercase letter</li>
+                <li>One number</li>
+                <li>One special character (!, @, #, $, etc.)</li>
+              </ul>
+            </small>
+            <div class="progress mt-2">
+              <div id="password-strength-bar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+            </div>
+          </div>
             <div class="col-12 login-btm login-button d-flex justify-content-center">
               <button type="submit" class="btn btn-outline-primary">Register</button>
             </div>
@@ -78,7 +96,54 @@
         });
     </script>
 @endif
+<script>
+  const passwordInput = document.getElementById("password");
+    const togglePasswordButton = document.getElementById("toggle-password");
+    const passwordIcon = document.getElementById("password-icon");
+    const passwordHint = document.getElementById("password-hint");
+    const strengthBar = document.getElementById("password-strength-bar");
 
+    // Mostrar/Ocultar contraseña
+    togglePasswordButton.addEventListener("click", () => {
+      const type = passwordInput.type === "password" ? "text" : "password";
+      passwordInput.type = type;
+      passwordIcon.className = type === "password" ? "fas fa-eye" : "fas fa-eye-slash";
+    });
+
+    // Validar la contraseña
+    passwordInput.addEventListener("input", () => {
+      const password = passwordInput.value;
+      const strength = calculateStrength(password);
+
+      // Mostrar/Ocultar recomendaciones
+      passwordHint.style.display = strength.isComplete ? "none" : "block";
+
+      // Actualizar barra de progreso
+      strengthBar.style.width = `${strength.percent}%`;
+      strengthBar.className = `progress-bar ${strength.colorClass}`;
+    });
+
+    function calculateStrength(password) {
+      let score = 0;
+
+      if (password.length >= 8) score++;
+      if (/[A-Z]/.test(password)) score++;
+      if (/[a-z]/.test(password)) score++;
+      if (/\d/.test(password)) score++;
+      if (/[\W_]/.test(password)) score++;
+
+      const percent = (score / 5) * 100;
+      const isComplete = score === 5;
+
+      const strength = {
+        5: { colorClass: "bg-success", isComplete },
+        3: { colorClass: "bg-warning", isComplete: false },
+        0: { colorClass: "bg-danger", isComplete: false },
+      };
+
+      return { ...strength[Math.min(score, 5)], percent };
+    }
+</script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="/js/main.js"></script>
 </body>
