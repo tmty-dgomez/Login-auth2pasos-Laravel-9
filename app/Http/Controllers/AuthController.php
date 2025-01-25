@@ -7,6 +7,7 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 use App\Mail\VerifyEmail;
 use Illuminate\Support\Facades\Validator;
 use App\Constants\ErrorCodes;
@@ -74,25 +75,28 @@ class AuthController extends Controller
             'email' => 'required|string|email',
             'password' => 'required|string|min:8',
         ]);
-
+    
         $email = filter_var(trim($loginData['email']), FILTER_SANITIZE_EMAIL);
         $password = trim($loginData['password']);
-
+    
         $user = User::where('email', $email)->first();
-
+    
         if (!$user || !Hash::check($password, $user->password)) {
             return redirect()->route('login')->with([
                 'error_code' => ErrorCodes::E1001,
                 'message' => 'The provided credentials are incorrect.',
             ]);
         }
-
-        $confirmationCode = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 5));
-        $user->update(['verification_code' => Hash::make($confirmationCode)]);
-        Mail::to($user->email)->send(new VerifyEmail($user, $confirmationCode));
-
-        return redirect()->route('verifyCode')->with('success', 'Welcome, ' . e($user->name) . '!');
+    
+        $verificationCode = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 5));
+        $user->verification_code = $verificationCode;
+        $user->save();
+        
+        Mail::to($user->email)->send(new VerifyEmail($user, $verificationCode));
+        return redirect()->route('verifyCode')->with('success', 'Please check your email for the verification code.');
     }
+    
+    
 
     /**
      * Log out the user.
@@ -115,32 +119,33 @@ class AuthController extends Controller
      * @param Request $request HTTP request containing verification code.
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function verifyLoginCode(Request $request)
-    {
-        $verifyData = $request->validate([
-            'verification_code' => 'required|string|min:5',
-        ]);
-    
-        $confirmationCode = trim($verifyData['verification_code']);
-        $user = $request->user();
-    
-        if (!$user || !Hash::check($confirmationCode, $user->verification_code)) {
-            return redirect()->route('login')->with([
-                'error_code' => ErrorCodes::E404,
-                'message' => 'Invalid verification code.',
-            ]);
-        }
-    
-        $user->update([
-            'email_verified_at' => now(),
-            'verification_code' => null,
-        ]);
-    
-        $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
-    
-        return redirect()->route('login')->with([
-            'success' => 'Two-step verification successful. Welcome!',
-            'access_token' => $token,
-        ]);
-    }
+   
+     public function verifyLoginCode(Request $request)
+     {
+         $verifyData = $request->validate([
+             'verify' => 'required|string|min:5|max:5',
+         ]);
+     
+         $confirmationCode = trim($verifyData['verify']);
+         
+         $user = User::where('verification_code', $confirmationCode)->first();
+     
+         if (!$user) {
+             return redirect()->route('verifyCode')->with([
+                 'error_code' => ErrorCodes::E404,
+                 'message' => 'Invalid verification code.',
+             ]);
+         }
+     
+         $user->update([
+             'verification_code' => null, 
+         ]);
+     
+         $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
+     
+         return redirect()->route('welcome')->with([
+             'success' => 'Verification successful! You are now logged in.',
+             'access_token' => $token,
+         ]);
+     }
 }    

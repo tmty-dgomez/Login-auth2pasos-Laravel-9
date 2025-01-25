@@ -12,16 +12,16 @@ class VerifyEmail extends Mailable
     use Queueable, SerializesModels;
 
     public $user;
-    public $confirmation_code;
+    public $confirmationCode;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($user,$confirmation_code)
+    public function __construct($user, $confirmationCode)
     {
         $this->user = $user;
-        $this->confirmation_code = $confirmation_code;
+        $this->confirmationCode = $confirmationCode;
     }
 
     /**
@@ -30,11 +30,12 @@ class VerifyEmail extends Mailable
      * @return $this
      */
     public function build(){
-        return $this->view('verifyLoginCode')
-            ->with([
-                'user' => $this->user,
-                'code' => $this->confirmation_code,
-            ]);
+        return $this->subject('Email Verification')
+        ->view('verifyLoginCode')
+        ->with([
+            'user' => $this->user,
+            'code' => $this->confirmationCode,
+        ]);
     }
 
 }

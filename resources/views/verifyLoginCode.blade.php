@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <style>
         body {
@@ -52,7 +51,6 @@
     </style>
     <title>Verificación de Cuenta</title>
 </head>
-
 <body>
     <div class="container">
         <h1>Hola {{ $user->name }},</h1>
@@ -65,5 +63,4 @@
         Este mensaje ha sido enviado automáticamente. Por favor, no respondas a este correo.
     </div>
 </body>
-
 </html>

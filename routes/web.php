@@ -14,9 +14,9 @@ use App\Http\Controllers\AuthController;
 |
 */
 
-// Route::get('/', function () {
-//     return view('welcome');
-// });
+ Route::get('/welcome', function () {
+     return view('welcome');
+ })->name('welcome');
 Route::get('/bienvenida/{userId}', [WelcomeController::class, 'bienvenida'])
     ->name('bienvenida.index');
 
@@ -34,10 +34,10 @@ Route::post('/login', [AuthController::class, 'login'])
 
 Route::get('/verifyCode', function () {
     return view('verifyCode');
-})->middleware('guest','throttle:5,1')->name('verifyCode');
+})->middleware('guest')->name('verifyCode');
 
 Route::post('verifyLoginCode', [AuthController::class, 'verifyLoginCode'])
-    ->middleware('guest', 'throttle:5,1') 
+    ->middleware('guest') 
     ->name('verifyLoginCode');
 
 

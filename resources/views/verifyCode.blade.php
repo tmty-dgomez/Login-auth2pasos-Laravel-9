@@ -108,15 +108,16 @@
                 <input type="text" maxlength="1" required />
                 <input type="text" maxlength="1" required />
             </div>
-            <input type="hidden" name="verification_code" id="verification_code">
+            <input type="hidden" name="verify" id="verify">
             <button type="submit" disabled>Verify</button>
         </form>
     </div>
 </div>
+
 @if (session('success'))
     <script>
         Swal.fire({
-            title: "Welcome!",
+            title: "Success!",
             text: "{{ session('success') }}",
             icon: "success",
             draggable: true,
@@ -126,22 +127,12 @@
     </script>
 @endif
 
-@if(session('error_code') == \App\Constants\ErrorCodes::E1001)
+@if(session('error_code') == \App\Constants\ErrorCodes::E404)
     <script>
         Swal.fire({
             icon: "error",
             title: "Oops...",
-            text: "The provided credentials are incorrect.",
-        });
-    </script>
-@endif
-
-@if ($errors->any())
-    <script>
-        Swal.fire({
-            icon: "error",
-            title: "Oops...",
-            text: "{{ implode(', ', $errors->all()) }}", 
+            text: "Invalid verification code.",
         });
     </script>
 @endif
@@ -149,29 +140,27 @@
 <script>
     const inputs = document.querySelectorAll('.code-input input');
     const button = document.querySelector('button[type="submit"]');
-    const hiddenInput = document.getElementById('verification_code');
+    const hiddenInput = document.getElementById('verify');
 
     inputs.forEach((input, index) => {
         input.addEventListener('input', () => {
-            if (input.value.length === 1 && index < inputs.length - 1) {
-                inputs[index + 1].focus();
+            if (input.value) {
+                if (inputs[index + 1]) {
+                    inputs[index + 1].focus();
+                }
+            } else {
+                if (inputs[index - 1]) {
+                    inputs[index - 1].focus();
+                }
             }
-            updateButtonState();
-        });
 
-        input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && index > 0 && input.value === '') {
-                inputs[index - 1].focus();
-            }
+            // Check if all inputs have values and enable the submit button
+            const code = Array.from(inputs).map(input => input.value).join('');
+            hiddenInput.value = code;
+
+            button.disabled = code.length !== 5;
         });
     });
-
-    function updateButtonState() {
-    const code = Array.from(inputs).map(input => input.value).join('');
-    hiddenInput.value = code;
-    button.disabled = code.length < inputs.length;
-}
-
 </script>
 </body>
 </html>

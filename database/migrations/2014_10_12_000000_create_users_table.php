@@ -20,7 +20,6 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('password');
             $table->string('verification_code')->nullable(); 
-            $table->boolean('email_verified_at')->default(false);
             $table->timestamps();
         });
     }
