@@ -21,38 +21,43 @@
             @csrf
             <div class="form-group">
               <label class="form-control-label">Name</label>
-              <input type="text" name="name" class="form-control" placeholder="Enter your name">
+              <input type="text" name="name" class="form-control" placeholder="Enter your name" value="{{ old('name') }}">
             </div>
             <div class="form-group">
               <label class="form-control-label">Email</label>
-              <input type="text" name="email" class="form-control" placeholder="Enter your email">
+              <input type="text" name="email" class="form-control" placeholder="Enter your email" value="{{ old('email') }}">
             </div>
             <div class="form-group">
               <label class="form-control-label">Phone number</label>
-              <input type="text" name="phone" class="form-control" placeholder="Enter your phone number">
+              <input type="text" name="phone" class="form-control" placeholder="Enter your phone number" value="{{ old('phone') }}">
             </div>
             <div class="form-group">
-            <label class="form-control-label">Password</label>
-            <div class="input-group">
-              <input id="password" type="password" name="password" class="form-control" placeholder="Enter your password">
-              <button type="button" id="toggle-password" class="btn btn-outline-secondary">
-                <i id="password-icon" class="fas fa-eye"></i>
-              </button>
+              <label class="form-control-label">Password</label>
+              <div class="input-group">
+                <input id="password" type="password" name="password" class="form-control" placeholder="Enter your password">
+                <button type="button" id="toggle-password" class="btn btn-outline-secondary">
+                  <i id="password-icon" class="fas fa-eye"></i>
+                </button>
+              </div>
+              <small id="password-hint" class="password-hint text-muted">
+                Your password should include:
+                <ul>
+                  <li>At least 8 characters</li>
+                  <li>One uppercase letter</li>
+                  <li>One lowercase letter</li>
+                  <li>One number</li>
+                  <li>One special character (!, @, #, $, etc.)</li>
+                </ul>
+              </small>
+              <div class="progress mt-2">
+                <div id="password-strength-bar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+              </div>
             </div>
-            <small id="password-hint" class="password-hint text-muted">
-              Your password should include:
-              <ul>
-                <li>At least 8 characters</li>
-                <li>One uppercase letter</li>
-                <li>One lowercase letter</li>
-                <li>One number</li>
-                <li>One special character (!, @, #, $, etc.)</li>
-              </ul>
-            </small>
-            <div class="progress mt-2">
-              <div id="password-strength-bar" class="progress-bar" role="progressbar" style="width: 0%;"></div>
+            <!-- reCAPTCHA -->
+            <div class="form-group mt-3">
+              {!! NoCaptcha::renderJs() !!}
+              {!! NoCaptcha::display() !!}
             </div>
-          </div>
             <div class="col-12 login-btm login-button d-flex justify-content-center">
               <button type="submit" class="btn btn-outline-primary">Register</button>
             </div>
@@ -61,9 +66,12 @@
       </div>
     </div>
   </div>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.min.js"
     integrity="sha384-7VPbUDkoPSGFnVtYi0QogXtr74QeVeeIs99Qfg5YCF+TidwNdjvaKZX19NZ/e6oz" crossorigin="anonymous"></script>
-@if (session('success'))
+
+  <!-- Sweetalert for session success/error -->
+  @if (session('success'))
     <script>
         Swal.fire({
             title: "¡Bienvenido!",
@@ -74,9 +82,9 @@
             showConfirmButton: false
         });
     </script>
-@endif
+  @endif
 
-@if (session('error'))
+  @if (session('error'))
     <script>
         Swal.fire({
             icon: "error",
@@ -84,9 +92,9 @@
             text: "{{ session('error') }}",
         });
     </script>
-@endif
+  @endif
 
-@if ($errors->any())
+  @if ($errors->any())
     <script>
         var errorMessages = "{{ implode(', ', $errors->all()) }}";
         Swal.fire({
@@ -95,30 +103,26 @@
             text: errorMessages,
         });
     </script>
-@endif
-<script>
-  const passwordInput = document.getElementById("password");
+  @endif
+  <script>
+    const passwordInput = document.getElementById("password");
     const togglePasswordButton = document.getElementById("toggle-password");
     const passwordIcon = document.getElementById("password-icon");
     const passwordHint = document.getElementById("password-hint");
     const strengthBar = document.getElementById("password-strength-bar");
 
-    // Mostrar/Ocultar contraseña
     togglePasswordButton.addEventListener("click", () => {
       const type = passwordInput.type === "password" ? "text" : "password";
       passwordInput.type = type;
       passwordIcon.className = type === "password" ? "fas fa-eye" : "fas fa-eye-slash";
     });
 
-    // Validar la contraseña
     passwordInput.addEventListener("input", () => {
       const password = passwordInput.value;
       const strength = calculateStrength(password);
 
-      // Mostrar/Ocultar recomendaciones
       passwordHint.style.display = strength.isComplete ? "none" : "block";
 
-      // Actualizar barra de progreso
       strengthBar.style.width = `${strength.percent}%`;
       strengthBar.className = `progress-bar ${strength.colorClass}`;
     });
@@ -143,8 +147,9 @@
 
       return { ...strength[Math.min(score, 5)], percent };
     }
-</script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="/js/main.js"></script>
+  </script>
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="/js/main.js"></script>
 </body>
 </html>

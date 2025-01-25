@@ -1,78 +1,84 @@
-@import url(https://fonts.googleapis.com/css?family=Poppins:300);
-
-body{
+body {
   background-color: #071014;
-  background-image: -webkit-linear-gradient(160deg, #071014 0%, #0db8de 100%);
-  background-image: -moz-linear-gradient(160deg, #071014 0%, #0db8de 100%);
-  background-image: -o-linear-gradient(160deg, #071014 0%, #0db8de 100%);
-  background-image: linear-gradient(160deg, #071014 0%, #0db8de 100%);  
-    font-family: 'Arial', sans-serif;
-    height: 100vh;
+  background-image: linear-gradient(160deg, #071014 0%, #0db8de 100%);
+  font-family: 'Arial', sans-serif;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.login-page {
-  width: 400px;
-  padding: 8% 0 0;
-  margin: auto;
-}
-.form {
-  position: relative;
-  z-index: 1;
+
+.login-box {
   background: #1A2226;
-  max-width: 400px;
-  margin: 0 auto 100px;
-  padding: 45px;
-  text-align: center;
+  padding: 40px;  /* Aumenta el padding para más espacio alrededor del formulario */
+  max-width: 700px;  /* Aumentado para hacerlo más ancho */
+  width: 100%;
   border-radius: 15px;
-  box-shadow: 0 0 20px 0 rgba(0, 0, 0, 0.2), 0 5px 5px 0 rgba(0, 0, 0, 0.24);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
 }
-.form input {
-  font-family: "Poppins", sans-serif;
-  outline: 0;
-  background: #f2f2f2;
-  width: 100%;
-  border: 0;
-  border-radius: 7px;
-  margin: 0 0 15px;
-  padding: 15px;
-  box-sizing: border-box;
-  font-size: 14px;
-  
+
+.login-title {
+  font-size: 30px;
+  font-weight: bold;
+  color: #0DB8DE;
+  text-align: center;
+  margin-bottom: 20px;
 }
-.form button {
-  font-family: "Poppins", sans-serif;
-  text-transform: uppercase;
-  outline: 0;
-  background: #0DB8DE;
-  width: 100%;
-  border: 0;
-  padding: 15px;
-  color: #FFFFFF;
-  border-radius: 7px;
-  font-size: 14px;
-  -webkit-transition: all 0.3 ease;
-  transition: all 0.3 ease;
+
+.form-control {
+  background-color: #1A2226;
+  border: none;
+  border-bottom: 2px solid #0DB8DE;
+  color: #ECF0F5;
+  padding: 12px;  /* Aumenta el padding para más espacio dentro de los campos */
+  margin-bottom: 15px;
+  border-radius: 0;
+}
+
+.form-control:focus {
+  border-color: #0DB8DE;
+  box-shadow: none;
+}
+
+.input-group {
+  position: relative;
+}
+
+#toggle-password {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #0DB8DE;
   cursor: pointer;
 }
-.form button:hover,.form button:active,.form button:focus {
-  background: #0e2941;
-}
-.form .message {
-  margin: 15px 0 0;
-  color: #0DB8DE;
-  font-size: 12px;
-}
-.form .message a {
-  color: #f2f2f2;
-  text-decoration: none;
-}
-.form .register-form {
-  display: none;
+
+.progress-bar {
+  transition: width 0.3s ease;
 }
 
-h2 {
+.btn-outline-primary {
+  width: 100%;
+  border-radius: 5px;
   color: #0DB8DE;
-  font-size: 30px;
-  letter-spacing: 2px;
-  margin-top: 35px;
-  font-weight: bold;
+  border-color: #0DB8DE;
+  padding: 80px;  /* Aumenta el padding en el botón */
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+  background: linear-gradient(160deg, #071014 0%, #0db8de 100%);
+  color: #fff;
+}
+
+.password-hint {
+  display: none;
+  margin-top: 10px;
+}
+
+small {
+  color: #6C757D;
 }

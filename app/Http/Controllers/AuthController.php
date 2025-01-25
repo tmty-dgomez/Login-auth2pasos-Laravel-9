@@ -33,6 +33,7 @@ class AuthController extends Controller
             'phone' => 'required|numeric|digits_between:10,15',
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|min:5',
+            'g-recaptcha-response' => 'required|captcha'
         ], [
             'name.required' => ErrorCodes::E0R01 . ' The name field is required.',
             'name.min' => ErrorCodes::E0R02 . ' The name must be at least 3 characters.',
@@ -41,6 +42,8 @@ class AuthController extends Controller
             'email.unique' => ErrorCodes::E0R05 . ' The email has already been taken.',
             'password.required' => ErrorCodes::E0R06 . ' The password field is required.',
             'password.min' => ErrorCodes::E0R07 . ' The password must be at least 5 characters.',
+            'g-recaptcha-response.required' => 'Please verify that you are not a robot.',
+            'g-recaptcha-response.captcha' => 'Captcha error! try again later or contact site admin.',
         ]);
 
         if ($validator->fails()) {
