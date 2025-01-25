@@ -32,6 +32,15 @@ Route::post('/login', [AuthController::class, 'login'])
     ->middleware('guest', 'throttle:5,1') 
     ->name('login.post');
 
+Route::get('/verifyCode', function () {
+    return view('verifyCode');
+})->middleware('guest','throttle:5,1')->name('verifyCode');
+
+Route::post('verifyLoginCode', [AuthController::class, 'verifyLoginCode'])
+    ->middleware('guest', 'throttle:5,1') 
+    ->name('verifyLoginCode');
+
+
 Route::get('/register', function () {
     return view('register');
 })->middleware('guest')->name('register');

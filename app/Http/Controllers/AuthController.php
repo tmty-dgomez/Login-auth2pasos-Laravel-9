@@ -7,20 +7,20 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
-use \App\Mail\VerifyEmail;
+use App\Mail\VerifyEmail;
 use Illuminate\Support\Facades\Validator;
-use App\Constants\ErrorCodes; 
+use App\Constants\ErrorCodes;
+
 class AuthController extends Controller
 {
-
     /**
-     * registro de un usuario.
+     * Register a new user.
      *
-     * @param Request $request La solicitud HTTP entrante que contiene los datos del registro del usuario.
-     * @return RedirectResponse Redirige de vuelta con los errores o a la página de inicio de sesión con un mensaje de éxito.
+     * @param Request $request HTTP request containing user registration data.
+     * @return \Illuminate\Http\RedirectResponse
      */
-
-    public function register(Request $request){
+    public function register(Request $request)
+    {
         $validator = Validator::make($request->all(), [
             'name' => [
                 'required',
@@ -47,37 +47,32 @@ class AuthController extends Controller
                 ->withErrors($validator)
                 ->withInput();
         }
-        
 
         $validatedData = $validator->validated();
         $validatedData['name'] = htmlspecialchars(trim($validatedData['name']), ENT_QUOTES, 'UTF-8');
         $validatedData['email'] = filter_var(trim($validatedData['email']), FILTER_SANITIZE_EMAIL);
 
-        $user = User::create([
+        User::create([
             'name' => $validatedData['name'],
             'phone' => $validatedData['phone'],
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['password']),
         ]);
 
-        Mail::to($user->email)->send(new VerifyEmail($user));
-
-        return redirect()->route('login')->with(
-            'success', 'User registered successfully!'
-        );
+        return redirect()->route('login')->with('success', 'User registered successfully!');
     }
 
     /**
-     *  inicio de sesión del usuario.
+     * Log in the user.
      *
-     * @param Request $request La solicitud HTTP entrante que contiene las credenciales de inicio de sesión.
-     * @return RedirectResponse Redirige a la página de inicio de sesión con un mensaje de éxito o error.
+     * @param Request $request HTTP request containing user credentials.
+     * @return \Illuminate\Http\RedirectResponse
      */
-
-    public function login(Request $request){
+    public function login(Request $request)
+    {
         $loginData = $request->validate([
             'email' => 'required|string|email',
-            'password' => 'required|min:8',
+            'password' => 'required|string|min:8',
         ]);
 
         $email = filter_var(trim($loginData['email']), FILTER_SANITIZE_EMAIL);
@@ -86,33 +81,66 @@ class AuthController extends Controller
         $user = User::where('email', $email)->first();
 
         if (!$user || !Hash::check($password, $user->password)) {
-            
             return redirect()->route('login')->with([
-                'error_code' => ErrorCodes::E1001,  
-                'message' => 'The provided credentials are incorrect.' 
+                'error_code' => ErrorCodes::E1001,
+                'message' => 'The provided credentials are incorrect.',
             ]);
         }
 
-        $token = $user->createToken(htmlspecialchars($user->name, ENT_QUOTES, 'UTF-8') . '-AuthToken')->plainTextToken;
+        $confirmationCode = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 5));
+        $user->update(['verification_code' => Hash::make($confirmationCode)]);
+        Mail::to($user->email)->send(new VerifyEmail($user, $confirmationCode));
 
-        return redirect()->route('login')->with([
-            'success' => 'Welcome, ' . e($user->name) . '!',
-            'access_token' => $token,
+        return redirect()->route('verifyCode')->with('success', 'Welcome, ' . e($user->name) . '!');
+    }
+
+    /**
+     * Log out the user.
+     *
+     * @param Request $request HTTP request containing logout action.
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => 'Logged out successfully.',
         ]);
     }
 
     /**
-     * cierre de sesión del usuario.
+     * Verify the user's email using a verification code.
      *
-     * @param Request $request La solicitud HTTP entrante que contiene la acción de cierre de sesión del usuario.
-     * @return JSON response Respuesta JSON que confirma el éxito del cierre de sesión.
+     * @param Request $request HTTP request containing verification code.
+     * @return \Illuminate\Http\RedirectResponse
      */
-
-    public function logout(Request $request){
-        $request->user()->currentAccessToken()->delete();
-        return response()->json([
-            "message" => htmlspecialchars("Logged out successfully", ENT_QUOTES, 'UTF-8'),
+    public function verifyLoginCode(Request $request)
+    {
+        $verifyData = $request->validate([
+            'verification_code' => 'required|string|min:5',
+        ]);
+    
+        $confirmationCode = trim($verifyData['verification_code']);
+        $user = $request->user();
+    
+        if (!$user || !Hash::check($confirmationCode, $user->verification_code)) {
+            return redirect()->route('login')->with([
+                'error_code' => ErrorCodes::E404,
+                'message' => 'Invalid verification code.',
+            ]);
+        }
+    
+        $user->update([
+            'email_verified_at' => now(),
+            'verification_code' => null,
+        ]);
+    
+        $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
+    
+        return redirect()->route('login')->with([
+            'success' => 'Two-step verification successful. Welcome!',
+            'access_token' => $token,
         ]);
     }
-
-}
+}    

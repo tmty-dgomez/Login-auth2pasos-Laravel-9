@@ -25,6 +25,8 @@ class User extends SanctumPersonalAccessToken
         'email',
         'phone',
         'password',
+        'verification_code',
+        'email_verified_at',
     ];
 
     /**

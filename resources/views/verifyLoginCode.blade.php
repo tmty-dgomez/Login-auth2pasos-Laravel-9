@@ -56,9 +56,10 @@
 <body>
     <div class="container">
         <h1>Hola {{ $user->name }},</h1>
-        <p>¡Gracias por registrarte !</p>
-        <p>Termina de registarte dandole en enlace de abajo para verificar tu cuenta</p>
-        <a href="{{ route('bienvenida.index', ['userId' => $user->id]) }}">Verfica tu Correo</a>
+        <p>¡Gracias por registrarte en nuestro sitio!</p>
+        <p>Para completar la verificación de tu cuenta, por favor utiliza el siguiente código:</p>
+        <p style="font-size: 20px; font-weight: bold; color: #FFD359;">{{ $code }}</p>
+        <p>Si no solicitaste esta verificación, por favor ignora este mensaje.</p>
     </div>
     <div class="footer">
         Este mensaje ha sido enviado automáticamente. Por favor, no respondas a este correo.
