@@ -17,35 +17,32 @@ use App\Http\Controllers\AuthController;
  Route::get('/dashboard', function () {
      return view('dashboard');
  })->name('dashboard');
- 
-Route::get('/bienvenida/{userId}', [WelcomeController::class, 'bienvenida'])
-    ->name('bienvenida.index');
 
 Route::get('/', function () {
         return view('login');
-})->name('login');
+})->name('login'); 
 
 Route::get('/login', function () {
     return view('login');
-})->middleware('guest')->name('login'); 
+})->name('login'); 
 
 Route::post('/login', [AuthController::class, 'login'])
-    ->middleware('guest', 'throttle:5,1') 
+    ->middleware('throttle:5,1') 
     ->name('login.post');
 
 Route::get('/verifyCode', function () {
     return view('verifyCode');
-})->middleware('guest')->name('verifyCode');
+})->name('verifyCode');
 
 Route::post('verifyLoginCode', [AuthController::class, 'verifyLoginCode'])
-    ->middleware('guest') 
+    ->middleware('throttle:5,1') 
     ->name('verifyLoginCode');
 
 
 Route::get('/register', function () {
     return view('register');
-})->middleware('guest')->name('register');
+})->name('register');
 
 Route::post('/register', [AuthController::class, 'register'])
-    ->middleware('guest', 'throttle:5,1')
+    ->middleware('throttle:5,1')
     ->name('register.post');

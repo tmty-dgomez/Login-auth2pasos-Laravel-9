@@ -11,6 +11,8 @@ use Illuminate\Support\Facades\Log;
 use App\Mail\VerifyEmail;
 use Illuminate\Support\Facades\Validator;
 use App\Constants\ErrorCodes;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Sesion;
 
 class AuthController extends Controller
 {
@@ -91,7 +93,7 @@ class AuthController extends Controller
             ]);
         }
     
-        $verificationCode = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 5));
+        $verificationCode = mt_rand(10000, 99999);
         $user->verification_code = $verificationCode;
         $user->save();
         
@@ -122,33 +124,36 @@ class AuthController extends Controller
      * @param Request $request HTTP request containing verification code.
      * @return \Illuminate\Http\RedirectResponse
      */
-   
-     public function verifyLoginCode(Request $request)
-     {
-         $verifyData = $request->validate([
-             'verify' => 'required|string|min:5|max:5',
-         ]);
+    
+
+    public function verifyLoginCode(Request $request)
+    {
+        $verifyData = $request->validate([
+            'verify' => 'required|string|min:5|max:5',
+        ]);
+    
+        $confirmationCode = trim($verifyData['verify']);
+    
+        $user = User::where('verification_code', $confirmationCode)->first();
+    
+        if (!$user) {
+            return redirect()->route('verifyCode')->with([
+                'error_code' => ErrorCodes::E404,
+                'message' => 'Invalid verification code.',
+            ]);
+        }
+    
+        $user->update([
+            'verification_code' => null,
+        ]);
+    
+        $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
+    
+        return redirect()->route('dashboard')->with([
+            'success' => 'Verification successful! You are now logged in.',
+            'access_token' => $token,
+        ]);
+    }
+    
      
-         $confirmationCode = trim($verifyData['verify']);
-         
-         $user = User::where('verification_code', $confirmationCode)->first();
-     
-         if (!$user) {
-             return redirect()->route('verifyCode')->with([
-                 'error_code' => ErrorCodes::E404,
-                 'message' => 'Invalid verification code.',
-             ]);
-         }
-     
-         $user->update([
-             'verification_code' => null, 
-         ]);
-     
-         $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
-     
-         return redirect()->route('dashboard')->with([
-             'success' => 'Verification successful! You are now logged in.',
-             'access_token' => $token,
-         ]);
-     }
 }    
