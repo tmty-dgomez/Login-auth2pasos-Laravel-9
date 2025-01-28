@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Constants\Errors\V1\ErrorCodes;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
@@ -10,9 +10,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\VerifyEmail;
 use Illuminate\Support\Facades\Validator;
-use App\Constants\ErrorCodes;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Sesion;
+use App\Models\Session;
 
 class AuthController extends Controller
 {
@@ -44,8 +43,8 @@ class AuthController extends Controller
             'email.unique' => ErrorCodes::E0R05 . ' The email has already been taken.',
             'password.required' => ErrorCodes::E0R06 . ' The password field is required.',
             'password.min' => ErrorCodes::E0R07 . ' The password must be at least 5 characters.',
-            'g-recaptcha-response.required' => 'Please verify that you are not a robot.',
-            'g-recaptcha-response.captcha' => 'Captcha error! try again later or contact site admin.',
+            'g-recaptcha-response.required' => ErrorCodes::E2001 . ' Please verify that you are not a robot.',
+            'g-recaptcha-response.captcha' => ErrorCodes::E2002 . ' Captcha error! Try again later or contact site admin.',
         ]);
 
         if ($validator->fails()) {
@@ -65,7 +64,7 @@ class AuthController extends Controller
             'password' => Hash::make($validatedData['password']),
         ]);
 
-        return redirect()->route('login')->with('success', 'User registered successfully!');
+        return redirect()->route('login')->with('success', ErrorCodes::S2001 . ' User registered successfully!');
     }
 
     /**
@@ -98,16 +97,14 @@ class AuthController extends Controller
         $user->save();
         
         Mail::to($user->email)->send(new VerifyEmail($user, $verificationCode));
-        return redirect()->route('verifyCode')->with('success', 'Please check your email for the verification code.');
+        return redirect()->route('verifyCode')->with('success', ErrorCodes::S2002 . ' Please check your email for the verification code.');
     }
-    
-    
 
     /**
      * Log out the user.
      *
      * @param Request $request HTTP request containing logout action.
-     * @return \Illuminate\Http\JsonResponse
+     * @return \Illuminate\Http\RedirectResponse
      */
     public function logout(Request $request)
     {
@@ -115,40 +112,33 @@ class AuthController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
     
-        return redirect()->route('login')->with('success', 'You have been logged out successfully.');
+        return redirect()->route('login')->with('success', ErrorCodes::S2003 . ' You have been logged out successfully.');
     }
    
-    
-
     /**
      * Verify the user's email using a verification code.
      *
      * @param Request $request HTTP request containing verification code.
      * @return \Illuminate\Http\RedirectResponse
      */
+    public function verifyLoginCode(Request $request)
+    {
+        $verifyData = $request->validate([
+            'verify' => 'required|string|min:5|max:5',
+        ]);
     
-
-     public function verifyLoginCode(Request $request)
-     {
-         $verifyData = $request->validate([
-             'verify' => 'required|string|min:5|max:5',
-         ]);
-     
-         $confirmationCode = trim($verifyData['verify']);
-         $user = User::where('verification_code', $confirmationCode)->first();
-     
-         if (!$user) {
-             return redirect()->route('verifyCode')->withErrors([
-                 'message' => 'Invalid verification code.',
-             ]);
-         }
-     
-         $user->update(['verification_code' => null]);
-     
-         Auth::guard('web')->login($user);
-         return redirect()->route('dashboard')->with('success', 'Verification successful! You are now logged in.');
-     }
-     
+        $confirmationCode = trim($verifyData['verify']);
+        $user = User::where('verification_code', $confirmationCode)->first();
     
-     
-}    
+        if (!$user) {
+            return redirect()->route('verifyCode')->withErrors([
+                'message' => 'Invalid verification code.',
+            ]);
+        }
+    
+        $user->update(['verification_code' => null]);
+    
+        Auth::guard('web')->login($user);
+        return redirect()->route('dashboard')->with('success', ErrorCodes::S2002 . ' Verification successful! You are now logged in.');
+    }
+}

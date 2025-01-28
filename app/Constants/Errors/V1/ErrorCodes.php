@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Constants;
+namespace App\Constants\Errors\V1;
 
 class ErrorCodes
 {
@@ -12,7 +12,8 @@ class ErrorCodes
     const E0R05 = 'E0R05'; // Correo electrónico ya está registrado
     const E0R06 = 'E0R06'; // Contraseña es obligatoria
     const E0R07 = 'E0R07'; // Contraseña debe tener al menos 5 caracteres
-    const E1002 = 'E1002';
+    const E1002 = 'E1002'; // Código de verificación incorrecto
+    
     // Errores de servidor
     const E500 = 'E500'; // Error interno del servidor
     const E501 = 'E501'; // Servicio no disponible
@@ -22,4 +23,13 @@ class ErrorCodes
 
     // Errores de inicio de sesión
     const E1001 = 'E1001'; // Credenciales incorrectas
+
+    // Errores de CAPTCHA
+    const E2001 = 'E2001'; // CAPTCHA es obligatorio
+    const E2002 = 'E2002'; // Error de CAPTCHA
+
+    // Códigos de éxito
+    const S2001 = 'S2001'; // Usuario registrado con éxito
+    const S2002 = 'S2002'; // Verificación exitosa
+    const S2003 = 'S2003'; // Cierre de sesión exitoso
 }

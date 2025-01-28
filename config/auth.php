@@ -35,17 +35,17 @@ return [
     | Supported: "session"
     |
     */
-
     'guards' => [
         'mfa' => [
-            'driver' => 'sesion',
+            'driver' => 'session',
             'provider' => 'users',
         ],
-            'web' => [
-            'driver' => 'session', 
+        'web' => [
+            'driver' => 'session',
             'provider' => 'users',
         ],
     ],
+
 
 
     /*
