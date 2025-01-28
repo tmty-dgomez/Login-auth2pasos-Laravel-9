@@ -111,12 +111,14 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
-
-        return response()->json([
-            'message' => 'Logged out successfully.',
-        ]);
+        Auth::guard('web')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+    
+        return redirect()->route('login')->with('success', 'You have been logged out successfully.');
     }
+   
+    
 
     /**
      * Verify the user's email using a verification code.
@@ -126,34 +128,27 @@ class AuthController extends Controller
      */
     
 
-    public function verifyLoginCode(Request $request)
-    {
-        $verifyData = $request->validate([
-            'verify' => 'required|string|min:5|max:5',
-        ]);
-    
-        $confirmationCode = trim($verifyData['verify']);
-    
-        $user = User::where('verification_code', $confirmationCode)->first();
-    
-        if (!$user) {
-            return redirect()->route('verifyCode')->with([
-                'error_code' => ErrorCodes::E404,
-                'message' => 'Invalid verification code.',
-            ]);
-        }
-    
-        $user->update([
-            'verification_code' => null,
-        ]);
-    
-        $token = $user->createToken($user->name . '-AuthToken')->plainTextToken;
-    
-        return redirect()->route('dashboard')->with([
-            'success' => 'Verification successful! You are now logged in.',
-            'access_token' => $token,
-        ]);
-    }
+     public function verifyLoginCode(Request $request)
+     {
+         $verifyData = $request->validate([
+             'verify' => 'required|string|min:5|max:5',
+         ]);
+     
+         $confirmationCode = trim($verifyData['verify']);
+         $user = User::where('verification_code', $confirmationCode)->first();
+     
+         if (!$user) {
+             return redirect()->route('verifyCode')->withErrors([
+                 'message' => 'Invalid verification code.',
+             ]);
+         }
+     
+         $user->update(['verification_code' => null]);
+     
+         Auth::guard('web')->login($user);
+         return redirect()->route('dashboard')->with('success', 'Verification successful! You are now logged in.');
+     }
+     
     
      
 }    
