@@ -59,7 +59,7 @@
               {!! NoCaptcha::display() !!}
             </div>
             <div class="col-12 login-btm login-button d-flex justify-content-center">
-              <button type="submit" class="btn btn-outline-primary">Register</button>
+              <button type="submit" id="register-btn" class="btn btn-outline-primary" disabled>Register</button>
             </div>
           </form>
         </div>
@@ -110,6 +110,7 @@
     const passwordIcon = document.getElementById("password-icon");
     const passwordHint = document.getElementById("password-hint");
     const strengthBar = document.getElementById("password-strength-bar");
+    const registerButton = document.getElementById("register-btn");
 
     togglePasswordButton.addEventListener("click", () => {
       const type = passwordInput.type === "password" ? "text" : "password";
@@ -125,6 +126,9 @@
 
       strengthBar.style.width = `${strength.percent}%`;
       strengthBar.className = `progress-bar ${strength.colorClass}`;
+
+      // Enable/disable the register button based on password strength
+      registerButton.disabled = !strength.isComplete;
     });
 
     function calculateStrength(password) {
