@@ -78,6 +78,10 @@ class AuthController extends Controller
         $loginData = $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string|min:8',
+            'g-recaptcha-response' => 'required|captcha'
+        ],[
+            'g-recaptcha-response.required' => ErrorCodes::E2001 . ' Please verify that you are not a robot.',
+            'g-recaptcha-response.captcha' => ErrorCodes::E2002 . ' Captcha error! Try again later or contact site admin.',
         ]);
     
         $email = filter_var(trim($loginData['email']), FILTER_SANITIZE_EMAIL);

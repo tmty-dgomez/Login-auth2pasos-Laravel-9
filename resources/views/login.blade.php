@@ -18,6 +18,10 @@
             <h2><i class="fas fa-lock"></i> Login</h2>
             <input type="text" name="email" placeholder="Email" value="{{ old('email') }}"  />
             <input type="password" name="password" placeholder="Password"  />
+            <div>
+              {!! NoCaptcha::renderJs() !!}
+              {!! NoCaptcha::display() !!}
+            </div>
             <button type="submit">Login</button>
             <p class="message">Not registered? <a href="{{ url('/register') }}">Create an account</a></p>
         </form>
@@ -37,7 +41,7 @@
     </script>
 @endif
 
-@if(session('error_code') == \App\Constants\ErrorCodes::E1001)
+@if(session('error_code') == \App\Constants\Errors\V1\ErrorCodes::E1001)
     <script>
         Swal.fire({
             icon: "error",
