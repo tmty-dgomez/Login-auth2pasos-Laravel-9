@@ -56,6 +56,7 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
+            Log::error(ErrorCodes::E1000 . ' Validation failed during registration', ['errors' => $validator->errors()]);
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput();
@@ -73,7 +74,7 @@ class AuthController extends Controller
         ]);
 
         
-        
+        Log::info(ErrorCodes::S2002 . ' User registered successfully!');
         return redirect()->route('login')->with('success', ErrorCodes::S2001 . ' User registered successfully!');
     }
 
@@ -87,32 +88,32 @@ class AuthController extends Controller
     {
         $loginData = $request->validate([
             'email' => 'required|string|email',
-            'password' => 'required|string|min:8',
-            'g-recaptcha-response' => 'required|captcha'
+            'password' => 'required|string|min:8', 
+            'g-recaptcha-response' => 'required|captcha',
         ],[
             'g-recaptcha-response.required' => ErrorCodes::E2001 . ' Please verify that you are not a robot.',
             'g-recaptcha-response.captcha' => ErrorCodes::E2002 . ' Captcha error! Try again later or contact site admin.',
         ]);
-    
+
         $email = filter_var(trim($loginData['email']), FILTER_SANITIZE_EMAIL);
-        $password = trim($loginData['password']);
-    
+        $password = trim($loginData['password']); 
+
         $user = User::where('email', $email)->first();
-    
         if (!$user || !Hash::check($password, $user->password)) {
+            Log::error(ErrorCodes::E1001,'Login failed for user');
             return redirect()->route('login')->with([
                 'error_code' => ErrorCodes::E1001,
                 'message' => 'The provided credentials are incorrect.',
             ]);
         }
-    
         $verificationCode = mt_rand(10000, 99999);
         $user->verification_code = $verificationCode;
         $user->save();
-        
         Mail::to($user->email)->send(new VerifyEmail($user, $verificationCode));
+        Log::info(ErrorCodes::S2002 . ' Please check your email for the verification code.');
         return redirect()->route('verifyCode')->with('success', ErrorCodes::S2002 . ' Please check your email for the verification code.');
     }
+
 
     /**
      * Log out the user.
@@ -125,7 +126,7 @@ class AuthController extends Controller
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-    
+        Log::info(ErrorCodes::S2003 . ' User logged out successfully.');
         return redirect()->route('login')->with('success', ErrorCodes::S2003 . ' You have been logged out successfully.');
     }
    
@@ -145,6 +146,7 @@ class AuthController extends Controller
         $user = User::where('verification_code', $confirmationCode)->first();
     
         if (!$user) {
+            Log::error(ErrorCodes::E1002,'Verification failed for user');
             return redirect()->route('verifyCode')->withErrors([
                 'message' => 'Invalid verification code.',
             ]);
@@ -153,6 +155,7 @@ class AuthController extends Controller
         $user->update(['verification_code' => null]);
     
         Auth::guard('web')->login($user);
+        Log::info(ErrorCodes::S2002 . ' Verification successful! User logged in.');
         return redirect()->route('dashboard')->with('success', ErrorCodes::S2002 . ' Verification successful! You are now logged in.');
     }
 }

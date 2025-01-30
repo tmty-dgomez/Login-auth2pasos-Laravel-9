@@ -41,25 +41,25 @@ Route::group(['web', 'detect-malicious-scripts', 'xss'], function() {
 
     Route::get('/', function () {
         return view('login');
-    })->name('login')->middleware('notAuthenticate','signed');  // Si no está autenticado
+    })->name('login')->middleware('notAuthenticate');  // Si no está autenticado
 
     Route::get('/login', function () {
         return view('login');
-    })->name('login')->middleware('notAuthenticate','signed');  // Si no está autenticado
+    })->name('login')->middleware('notAuthenticate');  // Si no está autenticado
 
     Route::get('/verifyCode', function () {
         return view('verifyCode');
-    })->name('verifyCode')->middleware('notAuthenticate','signed');
+    })->name('verifyCode')->middleware('notAuthenticate');
 
     Route::get('/register', function () {
         return view('register');
-    })->name('register')->middleware('notAuthenticate','signed');  
+    })->name('register')->middleware('notAuthenticate');  
 
     Route::get('/dashboard', function () {
         return view('dashboard');
-    })->name('dashboard')->middleware('auth','signed');  
+    })->name('dashboard')->middleware('auth');  
 
     Route::fallback(function () {
-        return response()->view('errors.404', [], 404)->middleware('auth','signed');
+        return response()->view('errors.404', [], 404)->middleware('auth');
     });
 });
