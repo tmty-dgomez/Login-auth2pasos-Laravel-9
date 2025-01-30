@@ -38,6 +38,7 @@ class AuthController extends Controller
                 'required',
                 'string',
                 'min:8',
+                'max:20',
                 'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/'
             ],
             'g-recaptcha-response' => 'required|captcha'
