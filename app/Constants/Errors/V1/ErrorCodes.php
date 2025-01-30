@@ -13,6 +13,7 @@ class ErrorCodes
     const E0R06 = 'E0R06'; // Contraseña es obligatoria
     const E0R07 = 'E0R07'; // Contraseña debe tener al menos 5 caracteres
     const E1002 = 'E1002'; // Código de verificación incorrecto
+    const E0R08 = 'E0R08'; // Contraseña debil carece de caracteres espesificos
     
     // Errores de servidor
     const E500 = 'E500'; // Error interno del servidor

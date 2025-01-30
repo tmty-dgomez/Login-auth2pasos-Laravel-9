@@ -12,6 +12,7 @@ use App\Mail\VerifyEmail;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Session;
+use Illuminate\Support\Carbon;
 
 class AuthController extends Controller
 {
@@ -33,7 +34,12 @@ class AuthController extends Controller
             ],
             'phone' => 'required|numeric|digits_between:10,15',
             'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:5',
+            'password' => [
+                'required',
+                'string',
+                'min:8',
+                'regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]+$/'
+            ],
             'g-recaptcha-response' => 'required|captcha'
         ], [
             'name.required' => ErrorCodes::E0R01 . ' The name field is required.',
@@ -43,6 +49,7 @@ class AuthController extends Controller
             'email.unique' => ErrorCodes::E0R05 . ' The email has already been taken.',
             'password.required' => ErrorCodes::E0R06 . ' The password field is required.',
             'password.min' => ErrorCodes::E0R07 . ' The password must be at least 5 characters.',
+            'password.regex' => ErrorCodes::E0R08 . ' The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
             'g-recaptcha-response.required' => ErrorCodes::E2001 . ' Please verify that you are not a robot.',
             'g-recaptcha-response.captcha' => ErrorCodes::E2002 . ' Captcha error! Try again later or contact site admin.',
         ]);
@@ -64,6 +71,8 @@ class AuthController extends Controller
             'password' => Hash::make($validatedData['password']),
         ]);
 
+        
+        
         return redirect()->route('login')->with('success', ErrorCodes::S2001 . ' User registered successfully!');
     }
 

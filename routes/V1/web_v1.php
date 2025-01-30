@@ -23,7 +23,7 @@ use Illuminate\Console\View\Components\Mutators\EnsurePunctuation;
 Route::group(['web', 'detect-malicious-scripts', 'xss'], function() {
     Route::controller(AuthController::class)->group(function () {
         Route::post('/login', 'login')
-            ->middleware('throttle:5,1', 'notAuthenticate')
+            ->middleware('throttle:5,1', 'notAuthenticate',)
             ->name('login.post');
 
         Route::post('/verifyLoginCode', 'verifyLoginCode')
@@ -41,25 +41,25 @@ Route::group(['web', 'detect-malicious-scripts', 'xss'], function() {
 
     Route::get('/', function () {
         return view('login');
-    })->name('login')->middleware('notAuthenticate');  // Si no está autenticado
+    })->name('login')->middleware('notAuthenticate','signed');  // Si no está autenticado
 
     Route::get('/login', function () {
         return view('login');
-    })->name('login')->middleware('notAuthenticate');  // Si no está autenticado
+    })->name('login')->middleware('notAuthenticate','signed');  // Si no está autenticado
 
     Route::get('/verifyCode', function () {
         return view('verifyCode');
-    })->name('verifyCode')->middleware('notAuthenticate');
+    })->name('verifyCode')->middleware('notAuthenticate','signed');
 
     Route::get('/register', function () {
         return view('register');
-    })->name('register')->middleware('notAuthenticate');  
+    })->name('register')->middleware('notAuthenticate','signed');  
 
     Route::get('/dashboard', function () {
         return view('dashboard');
-    })->name('dashboard')->middleware('auth');  
+    })->name('dashboard')->middleware('auth','signed');  
 
     Route::fallback(function () {
-        return response()->view('errors.404', [], 404);
+        return response()->view('errors.404', [], 404)->middleware('auth','signed');
     });
 });

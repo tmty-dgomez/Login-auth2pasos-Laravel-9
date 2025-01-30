@@ -127,7 +127,7 @@
     </script>
 @endif
 
-@if(session('error_code') == \App\Constants\ErrorCodes::E404)
+@if(session('error_code') == \App\Constants\Errors\V1\ErrorCodes::E404)
     <script>
         Swal.fire({
             icon: "error",
