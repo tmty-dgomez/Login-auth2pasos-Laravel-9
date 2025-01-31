@@ -100,7 +100,6 @@ class AuthController extends Controller
 
         $user = User::where('email', $email)->first();
         if (!$user || !Hash::check($password, $user->password)) {
-            Log::error(ErrorCodes::E1001,'Login failed for user');
             return redirect()->route('login')->with([
                 'error_code' => ErrorCodes::E1001,
                 'message' => 'The provided credentials are incorrect.',
@@ -138,15 +137,28 @@ class AuthController extends Controller
      */
     public function verifyLoginCode(Request $request)
     {
+        $validator = Validator::make($request->all(), [
+            'g-recaptcha-response' => 'required|captcha'
+        ], [
+            'password.regex' => ErrorCodes::E0R08 . ' The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
+            'g-recaptcha-response.required' => ErrorCodes::E2001 . ' Please verify that you are not a robot.',
+            'g-recaptcha-response.captcha' => ErrorCodes::E2002 . ' Captcha error! Try again later or contact site admin.',
+        ]);
         $verifyData = $request->validate([
             'verify' => 'required|string|min:5|max:5',
         ]);
     
+        if ($validator->fails()) {
+            Log::error(ErrorCodes::E1000 . ' Validation failed during registration', ['errors' => $validator->errors()]);
+            return redirect()->back()
+                ->withErrors($validator)
+                ->withInput();
+        }
+        
         $confirmationCode = trim($verifyData['verify']);
         $user = User::where('verification_code', $confirmationCode)->first();
     
         if (!$user) {
-            Log::error(ErrorCodes::E1002,'Verification failed for user');
             return redirect()->route('verifyCode')->withErrors([
                 'message' => 'Invalid verification code.',
             ]);

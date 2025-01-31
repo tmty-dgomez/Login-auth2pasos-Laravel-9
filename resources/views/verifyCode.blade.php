@@ -108,6 +108,10 @@
                 <input type="text" maxlength="1" required />
                 <input type="text" maxlength="1" required />
             </div>
+            <div >
+                {!! NoCaptcha::renderJs() !!}
+                {!! NoCaptcha::display() !!}
+            </div>
             <input type="hidden" name="verify" id="verify">
             <button type="submit" disabled>Verify</button>
         </form>

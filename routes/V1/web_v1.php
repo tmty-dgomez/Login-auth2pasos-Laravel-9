@@ -60,6 +60,6 @@ Route::group(['web', 'detect-malicious-scripts', 'xss'], function() {
     })->name('dashboard')->middleware('auth');  
 
     Route::fallback(function () {
-        return response()->view('errors.404', [], 404)->middleware('auth');
+        return response()->view('404', [], 404);
     });
 });
