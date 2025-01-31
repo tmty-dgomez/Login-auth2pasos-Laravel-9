@@ -15,6 +15,7 @@ class ErrorCodes
     const E1002 = 'E1002'; // Código de verificación incorrecto
     const E0R08 = 'E0R08'; // Contraseña debil carece de caracteres espesificos 
     const E1000 = 'E1000'; 
+    const E2003 = 'E2003';  // usuario con email en false
     // Errores de servidor
     const E500 = 'E500'; // Error interno del servidor
     const E501 = 'E501'; // Servicio no disponible

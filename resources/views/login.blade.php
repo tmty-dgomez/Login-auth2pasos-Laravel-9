@@ -41,6 +41,12 @@
     </script>
 @endif
 
+@if(session('message'))
+    <div class="alert alert-danger">
+        {{ session('message') }}
+    </div>
+@endif
+
 @if(session('error_code') == \App\Constants\Errors\V1\ErrorCodes::E1001)
     <script>
         Swal.fire({
@@ -62,6 +68,5 @@
 @endif
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="/js/main.js"></script>
 </body>
 </html>

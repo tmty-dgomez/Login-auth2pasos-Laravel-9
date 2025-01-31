@@ -30,7 +30,7 @@ class VerifyEmail extends Mailable
      * @return $this
      */
     public function build(){
-        return $this->subject('Email Verification')
+        return $this->subject('Code Verification')
         ->view('verifyLoginCode')
         ->with([
             'user' => $this->user,

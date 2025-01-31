@@ -131,6 +131,27 @@
     </script>
 @endif
 
+@if (session('error'))
+<script>
+    Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "{{ session('error') }}",
+    });
+</script>
+@endif
+
+@if ($errors->any())
+<script>
+    var errorMessages = "{{ implode(', ', $errors->all()) }}";
+    Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: errorMessages,
+    });
+</script>
+@endif
+
 @if(session('error_code') == \App\Constants\Errors\V1\ErrorCodes::E404)
     <script>
         Swal.fire({

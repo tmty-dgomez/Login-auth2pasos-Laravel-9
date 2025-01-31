@@ -8,7 +8,7 @@ use App\Http\Middleware\PreventBackHistory;
 use App\Http\Middleware\DetectMaliciousScripts;
 use App\Http\Middleware\NotAuthenticate;
 use Illuminate\Console\View\Components\Mutators\EnsurePunctuation;
-
+use App\Http\Controllers\EmailController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -46,6 +46,18 @@ Route::group(['web', 'detect-malicious-scripts', 'xss'], function() {
     Route::get('/login', function () {
         return view('login');
     })->name('login')->middleware('notAuthenticate');  // Si no está autenticado
+
+    Route::get('/WelcomeNova/{userId}', [EmailController::class, 'welcomeNova'])
+    ->name('WelcomeNova.index')
+    ->middleware('notAuthenticate')
+    ->where('userId', '[0-9]+');
+
+    Route::get('/verify/{userId}', [EmailController::class, 'welcomeNova'])->name('WelcomeNova.index')
+    ->middleware('notAuthenticate')
+    ->where('userId', '[0-9]+');
+    
+    Route::post('/verifyLoginCode', [EmailController::class, 'welcomeNova'])->name('verifyLoginCode')->middleware('throttle:5,1','notAuthenticate');
+
 
     Route::get('/verifyCode', function () {
         return view('verifyCode');

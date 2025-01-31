@@ -11,17 +11,20 @@ class VerifyEmailAddres extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $signedUrl;
-
-    public function __construct($signedUrl)
+    public $user;
+    
+    public function __construct($user)
     {
-        $this->signedUrl = $signedUrl;
+        $this->user = $user;
     }
 
     public function build()
     {
-        return $this->subject('Verify Your Email')->view('verify')->with([
-            'url' => $this->signedUrl,
-        ]);
+        return $this->subject('Email Verification')
+            ->view('verifyEmail')
+            ->with([
+                'user' => $this->user,
+            ]);
     }
 }
+
