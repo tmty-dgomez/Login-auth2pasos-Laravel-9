@@ -11,15 +11,17 @@ class VerifyEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $user;
+    public $signedRoute;
     public $confirmationCode;
+    public $user;
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public function __construct($user, $confirmationCode)
+    public function __construct($signedRoute, $confirmationCode, $user)
     {
+        $this->signedRoute = $signedRoute; 
         $this->user = $user;
         $this->confirmationCode = $confirmationCode;
     }
@@ -33,7 +35,8 @@ class VerifyEmail extends Mailable
         return $this->subject('Code Verification')
         ->view('verifyLoginCode')
         ->with([
-            'user' => $this->user,
+            'name'=>$this->user,
+            'url' => $this->signedRoute,
             'code' => $this->confirmationCode,
         ]);
     }

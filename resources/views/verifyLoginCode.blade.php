@@ -68,10 +68,9 @@
 <body>
     <div class="card">
         <h1>Hola {{ $user->name }},</h1>
-        <p>¡Gracias por registrarte en nuestro sitio!</p>
         <p>Para completar la verificación de tu cuenta, utiliza el siguiente código:</p>
         <div class="verification-code">{{ $code }}</div>
-        <p>Si no solicitaste esta verificación, ignora este mensaje.</p>
+        <a href="{{ $url }}" class="btn btn-primary"></a>
     </div>
     <div class="footer">
         Este mensaje ha sido enviado automáticamente. Por favor, no respondas a este correo.

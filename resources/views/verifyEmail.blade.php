@@ -62,7 +62,7 @@
             <h1>Hello {{ $user->name }},</h1>
             <p>Thank you for registering at NovaBytes!</p>
             <p>To complete your account verification, please press the following button:</p>
-            <a href="{{ route('WelcomeNova.index', ['userId' => $user->id]) }}" class="btn btn-primary">
+            <a href="{{ $url }}" class="btn btn-primary">
                 Verify Your Account
             </a>
         </div>
@@ -74,3 +74,5 @@
     @endif
 </body>
 </html>
+
+<!-- resources/views/verifyEmail.blade.php-->

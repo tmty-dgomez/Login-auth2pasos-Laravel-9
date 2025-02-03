@@ -9,11 +9,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use App\Mail\VerifyEmail;
-use App\Mail\VerifyEmailAddres;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Session;
 use Illuminate\Support\Carbon;
+Use Illuminate\Support\Facades\URL;
+use App\Mail\VerifyEmailAddres;
+use App\Mail\VerifyEmailAddress;
 
 class AuthController extends Controller
 {
@@ -50,31 +52,38 @@ class AuthController extends Controller
             'email.email' => ErrorCodes::E0R04 . ' The email must be a valid email address.',
             'email.unique' => ErrorCodes::E0R05 . ' The email has already been taken.',
             'password.required' => ErrorCodes::E0R06 . ' The password field is required.',
-            'password.min' => ErrorCodes::E0R07 . ' The password must be at least 8 characters.', // Arreglado
+            'password.min' => ErrorCodes::E0R07 . ' The password must be at least 8 characters.',
             'password.regex' => ErrorCodes::E0R08 . ' The password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.',
             'g-recaptcha-response.required' => ErrorCodes::E2001 . ' Please verify that you are not a robot.',
             'g-recaptcha-response.captcha' => ErrorCodes::E2002 . ' Captcha error! Try again later or contact site admin.',
         ]);
-
+    
         if ($validator->fails()) {
             Log::error(ErrorCodes::E1000 . ' Validation failed during registration', ['errors' => $validator->errors()]);
             return redirect()->back()
                 ->withErrors($validator)
                 ->withInput();
         }
-
+    
         $validatedData = $validator->validated();
         $validatedData['name'] = htmlspecialchars(trim($validatedData['name']), ENT_QUOTES, 'UTF-8');
         $validatedData['email'] = filter_var(trim($validatedData['email']), FILTER_SANITIZE_EMAIL);
-
+    
         $user = User::create([
             'name' => $validatedData['name'],
             'phone' => $validatedData['phone'],
             'email' => $validatedData['email'],
             'password' => Hash::make($validatedData['password']),
         ]);
-
-        Mail::to($user->email)->send(new VerifyEmailAddres($user));
+    
+        $url = URL::temporarySignedRoute(
+            'verifyEmail', 
+            now()->addMinutes(10), 
+            ['userId' => $user->id]
+        );
+        
+        Mail::to($user->email)->send(new VerifyEmailAddress($url,$user));
+    
         Log::info(ErrorCodes::S2002 . ' User registered successfully!');
         return redirect()->route('login')->with('success', ErrorCodes::S2001 . ' User registered successfully!, Please check your email');
     }
@@ -118,7 +127,12 @@ class AuthController extends Controller
         $verificationCode = mt_rand(10000, 99999);
         $user->verification_code = $verificationCode;
         $user->save();
-        Mail::to($user->email)->send(new VerifyEmail($user, $verificationCode));
+        $signedRoute = URL::temporarySignedRoute(
+            'verifyCode', 
+            now()->addMinutes(10), 
+            ['userId' => $user->id] 
+        );
+        Mail::to($user->email)->send(new VerifyEmail($verificationCode,$signedRoute,$user));
         Log::info(ErrorCodes::S2002 . ' Please check your email for the verification code.');
         return redirect()->route('verifyCode')->with('success', ErrorCodes::S2002 . ' Please check your email for the verification code.');
     }
@@ -145,36 +159,32 @@ class AuthController extends Controller
      * @param Request $request HTTP request containing verification code.
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function verifyLoginCode(Request $request)
+    public function verifyLoginCode(Request $request, int $id)
     {
         $verifyData = $request->validate([
             'verify' => 'required|string|min:5|max:5',
             'g-recaptcha-response' => 'required|captcha'
-        ],[
-            'verify.required' =>  ' The verification code field is required.',
-            'verify.min' =>  ' The verification code must be 5 characters.',
-            'verify.max' => ' The verification code must be 5 characters.',
+        ], [
+            'verify.required' => 'The verification code field is required.',
+            'verify.min' => 'The verification code must be 5 characters.',
+            'verify.max' => 'The verification code must be 5 characters.',
             'g-recaptcha-response.required' => ErrorCodes::E2001 . ' Please verify that you are not a robot.',
             'g-recaptcha-response.captcha' => ErrorCodes::E2002 . ' Captcha error! Try again later or contact site admin.',
         ]);
     
-        
-
         $confirmationCode = trim($verifyData['verify']);
-        $user = User::where('verification_code', $confirmationCode)->first();
+        $user = User::find($id);
     
-        if (!$user) {
+        if (!$user || $user->verification_code !== $confirmationCode) {
             return redirect()->route('verifyCode')->withErrors([
                 'message' => 'Invalid verification code.',
             ]);
         }
     
         $user->update(['verification_code' => null]);
-    
         Auth::guard('web')->login($user);
         Log::info(ErrorCodes::S2002 . ' Verification successful! User logged in.');
         return redirect()->route('dashboard')->with('success', ErrorCodes::S2002 . ' Verification successful! You are now logged in.');
     }
-
     
 }

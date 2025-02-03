@@ -7,15 +7,17 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class VerifyEmailAddres extends Mailable
+class VerifyEmailAddress extends Mailable
 {
     use Queueable, SerializesModels;
 
     public $user;
-    
-    public function __construct($user)
+    public $url;
+
+    public function __construct($user, $url)
     {
         $this->user = $user;
+        $this->url = $url;
     }
 
     public function build()
@@ -24,7 +26,7 @@ class VerifyEmailAddres extends Mailable
             ->view('verifyEmail')
             ->with([
                 'user' => $this->user,
+                'url' => $this->url,
             ]);
     }
 }
-

@@ -52,16 +52,15 @@ Route::group(['web', 'detect-malicious-scripts', 'xss'], function() {
     ->middleware('notAuthenticate')
     ->where('userId', '[0-9]+');
 
-    Route::get('/verify/{userId}', [EmailController::class, 'welcomeNova'])->name('WelcomeNova.index')
-    ->middleware('notAuthenticate')
-    ->where('userId', '[0-9]+');
-    
-    Route::post('/verifyLoginCode', [EmailController::class, 'welcomeNova'])->name('verifyLoginCode')->middleware('throttle:5,1','notAuthenticate');
+    // Ruta para mostrar el formulario de verificación (firmada)
+    Route::get('/verifyCode', function ($userId) {
+        return view('verifyCode', ['userId' => $userId]);
+    })->name('verifyCode')->middleware('signed');
 
-
-    Route::get('/verifyCode', function () {
-        return view('verifyCode');
-    })->name('verifyCode')->middleware('notAuthenticate');
+    // Ruta para procesar el código de verificación (POST)
+    Route::post('/verifyLoginCode', [AuthController::class, 'verifyLoginCode'])
+        ->middleware('throttle:5,1', 'notAuthenticate')
+        ->name('verifyLoginCode');
 
     Route::get('/register', function () {
         return view('register');
@@ -74,4 +73,9 @@ Route::group(['web', 'detect-malicious-scripts', 'xss'], function() {
     Route::fallback(function () {
         return response()->view('404', [], 404);
     });
+
+    Route::get('/verifyEmail/{userId}', [EmailController::class, 'verifyEmail'])
+    ->name('verifyEmail')
+    ->middleware('signed');
+
 });
